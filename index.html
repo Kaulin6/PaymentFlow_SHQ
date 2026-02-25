@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHQ Payment & Receipt Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-alt: #f5f5f5;
+      --border: rgba(0, 0, 0, 0.06);
+      --border-strong: rgba(0, 0, 0, 0.1);
+      --text: #111111;
+      --text-mid: #444444;
+      --text-dim: #777777;
+      --accent: #0a8a6e;
+      --accent-soft: rgba(10, 138, 110, 0.08);
+      --purple: #6d28d9;
+      --purple-soft: rgba(109, 40, 217, 0.07);
+      --orange: #c2410c;
+      --orange-soft: rgba(194, 65, 12, 0.06);
+      --blue: #1d4ed8;
+      --blue-soft: rgba(29, 78, 216, 0.06);
+      --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e0e0e;
+        --surface: #1a1a1a;
+        --surface-alt: #141414;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.1);
+        --text: #eeeeee;
+        --text-mid: #bbbbbb;
+        --text-dim: #888888;
+        --accent: #34d399;
+        --accent-soft: rgba(52, 211, 153, 0.1);
+        --purple: #a78bfa;
+        --purple-soft: rgba(167, 139, 250, 0.08);
+        --orange: #fb923c;
+        --orange-soft: rgba(251, 146, 60, 0.08);
+        --blue: #60a5fa;
+        --blue-soft: rgba(96, 165, 250, 0.08);
+      }
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-wrap: break-word;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 15% 5%, var(--accent-soft) 0%, transparent 40%),
+        radial-gradient(circle at 85% 50%, var(--purple-soft) 0%, transparent 35%);
+      background-attachment: fixed;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 80%, transparent);
+      backdrop-filter: blur(20px) saturate(1.2);
+      -webkit-backdrop-filter: blur(20px) saturate(1.2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.3px;
+      color: var(--text);
+      padding: 16px 16px 16px 0;
+      border-right: 1px solid var(--border);
+      margin-right: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .nav-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .nav-inner::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav a {
+      display: block;
+      padding: 16px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-decoration: none;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      .nav a {
+        padding: 14px 12px;
+        font-size: 12px;
+      }
+    }
+
+    /* ── Layout ── */
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 60px 0 48px;
+      max-width: 600px;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 48px);
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 17px;
+      color: var(--text-mid);
+      line-height: 1.55;
+    }
+
+    .hero-pills {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-mid);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s, box-shadow 0.15s;
+    }
+
+    .pill:active {
+      transform: scale(0.97);
+    }
+
+    .pill--green {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .pill--purple {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .pill--orange {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-soft);
+    }
+
+    /* ── Rules bar ── */
+    .rules-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .rules-bar-rule {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.5;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rules-bar-rule strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .rules-bar-metrics {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .rules-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .rules-metric-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+    }
+
+    .rules-metric-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rules-chip {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 99px;
+    }
+
+    .rules-chip--mgr {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .rules-chip--staff {
+      background: var(--purple-soft);
+      color: var(--purple);
+    }
+
+    .rules-chip--orange {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .rules-chip-sep {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .rules-chip-note {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .callout-sub {
+      padding: 14px 20px;
+      background: var(--accent-soft);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .callout-sub strong {
+      color: var(--accent);
+    }
+
+    .pt-cards {
+      margin-bottom: 24px;
+    }
+
+    .pt-cards-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .pt-cards-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 700px) {
+      .pt-cards-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .pt-card--green {
+      border-top: 3px solid var(--accent);
+    }
+
+    .pt-card--purple {
+      border-top: 3px solid var(--purple);
+    }
+
+    .pt-card--orange {
+      border-top: 3px solid var(--orange);
+    }
+
+    .pt-card-header {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      padding-right: 28px;
+    }
+
+    .pt-card-header::-webkit-details-marker {
+      display: none;
+    }
+
+    .pt-card-header::after {
+      content: '+';
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: transform 0.2s;
+    }
+
+    .pt-card[open] .pt-card-header::after {
+      content: '−';
+    }
+
+    .pt-card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .pt-card--green .pt-card-title {
+      color: var(--accent);
+    }
+
+    .pt-card--purple .pt-card-title {
+      color: var(--purple);
+    }
+
+    .pt-card--orange .pt-card-title {
+      color: var(--orange);
+    }
+
+    .pt-card-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .pt-card ul {
+      list-style: none;
+      padding: 14px 0 0 0;
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .pt-card li {
+      font-size: 13px;
+      color: var(--text-mid);
+      padding: 4px 0 4px 16px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .pt-card li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 11px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .pt-card--green li::before {
+      background: var(--accent);
+    }
+
+    .pt-card--purple li::before {
+      background: var(--purple);
+    }
+
+    .pt-card--orange li::before {
+      background: var(--orange);
+    }
+
+    /* ── Sections ── */
+    .section {
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-head {
+      margin-bottom: 28px;
+    }
+
+    .section-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .section-tag--green {
+      color: var(--accent);
+    }
+
+    .section-tag--purple {
+      color: var(--purple);
+    }
+
+    .section-tag--orange {
+      color: var(--orange);
+    }
+
+    .section-tag--blue {
+      color: var(--blue);
+    }
+
+    .section h2 {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.8px;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-dim);
+    }
+
+    /* ── Mermaid flowchart ── */
+    .chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.03);
+    }
+
+    .chart-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 4px;
+      z-index: 5;
+    }
+
+    .chart-toolbar button {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 15px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .chart-toolbar button:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .chart-scroll {
+      overflow: auto;
+      padding: 28px 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      min-width: 500px;
+      transform-origin: top center;
+      transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .chart-wrap.is-zoomed {
+      cursor: grab;
+    }
+
+    .chart-wrap.is-zoomed:active {
+      cursor: grabbing;
+    }
+
+    .mermaid .nodeLabel {
+      color: var(--text) !important;
+      font-family: var(--font) !important;
+    }
+
+    .mermaid .edgeLabel {
+      color: var(--text-dim) !important;
+      background: var(--surface) !important;
+      font-family: var(--mono) !important;
+      font-size: 11px !important;
+    }
+
+    .mermaid .clickable {
+      cursor: pointer !important;
+    }
+
+    .chart-hint {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .chart-hint {
+        display: block;
+      }
+    }
+
+    /* ── Question timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border-strong);
+      border-radius: 1px;
+    }
+
+    .tl-item {
+      position: relative;
+      padding-bottom: 28px;
+    }
+
+    .tl-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .tl-dot {
+      position: absolute;
+      left: -32px;
+      top: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--accent);
+      z-index: 1;
+    }
+
+    .tl-item:last-child .tl-dot {
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .tl-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .tl-card:hover {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .tl-card h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .tl-branch {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.55;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 6px;
+    }
+
+    .tl-branch strong {
+      font-weight: 600;
+    }
+
+    .tl-yes {
+      background: var(--accent-soft);
+    }
+
+    .tl-yes strong {
+      color: var(--accent);
+    }
+
+    .tl-no {
+      background: var(--surface-alt);
+    }
+
+    .tl-no strong {
+      color: var(--text-dim);
+    }
+
+    /* Fallback destinations */
+    .dest-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .dest-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dest {
+      padding: 14px 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      transition: background 0.15s;
+    }
+
+    .dest:hover {
+      background: var(--accent-soft);
+    }
+
+    .dest-name {
+      font-weight: 600;
+    }
+
+    .dest-email {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+
+    /* ── Procurement cards ── */
+    .proc-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .proc-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .proc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .proc--rfp {
+      border-top: 3px solid var(--purple);
+    }
+
+    .proc--po {
+      border-top: 3px solid var(--accent);
+    }
+
+    .proc-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .proc-via {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    .proc ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .proc li {
+      font-size: 14px;
+      color: var(--text-mid);
+      padding: 5px 0 5px 16px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .proc li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 13px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .proc--rfp .proc-title {
+      color: var(--purple);
+    }
+
+    .proc--rfp li::before {
+      background: var(--purple);
+    }
+
+    .proc--po .proc-title {
+      color: var(--accent);
+    }
+
+    .proc--po li::before {
+      background: var(--accent);
+    }
+
+    .skip-box {
+      padding: 16px 20px;
+      background: var(--orange-soft);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .skip-box h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+
+    .skip-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .skip-box li {
+      font-size: 13px;
+      color: var(--text-mid);
+      padding: 3px 0 3px 16px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .skip-box li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 11px;
+      width: 6px;
+      height: 2px;
+      background: var(--orange);
+      border-radius: 1px;
+    }
+
+    /* ── Step lists ── */
+    .steps-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .steps-block h4 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .steps-block .lead-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+
+    .steps {
+      list-style: none;
+      counter-reset: s;
+      padding: 0;
+    }
+
+    .steps li {
+      counter-increment: s;
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: baseline;
+      padding: 10px 0;
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    .steps li+li {
+      border-top: 1px solid var(--border);
+    }
+
+    .steps li::before {
+      content: counter(s);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 6px;
+      padding: 4px 0;
+    }
+
+    .steps--purple li::before {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    /* ── Ownership callout in RFP ── */
+    .ownership {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: var(--purple-soft);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.5;
+    }
+
+    .ownership strong {
+      color: var(--purple);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ── Animate on scroll ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <span class="nav-brand">SHQ</span>
+      <a href="#credit-card" class="active">Credit Card</a>
+      <a href="#project">Project</a>
+      <a href="#invoice">Invoice</a>
+      <a href="#receipts">Receipt Flow</a>
+      <a href="#procurement">Procurement</a>
+      <a href="#how-to">RFP & PO Steps</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+
+    <!-- Hero -->
+    <header class="hero">
+      <div class="hero-eyebrow">StorageHQ Internal</div>
+      <h1>Payment & Receipt Flow</h1>
+      <p>How to pick the right credit card, submit receipts, and use procurement. A quick-reference guide for the whole
+        team.</p>
+      <div class="hero-pills">
+        <span class="pill pill--green" data-section="#credit-card">Payment Selection</span>
+        <span class="pill pill--purple" data-section="#receipts">Receipt Flow</span>
+        <span class="pill pill--orange" data-section="#procurement">Procurement Questions</span>
+      </div>
+    </header>
+
+    <!-- Key rules -->
+    <div class="rules-bar reveal">
+      <div class="rules-bar-rule">
+        <strong>Default rule:</strong> All employees should pay for their own expenses using Ramp credit cards whenever possible.
+      </div>
+      <div class="rules-bar-metrics">
+        <div class="rules-metric">
+          <span class="rules-metric-label">Approval needed</span>
+          <span class="rules-metric-row">
+            <span class="rules-chip rules-chip--mgr">Manager > $5,000</span>
+            <span class="rules-chip rules-chip--staff">Support Staff > $500</span>
+          </span>
+        </div>
+        <div class="rules-metric">
+          <span class="rules-metric-label">Vendor payments due by</span>
+          <span class="rules-metric-row">
+            <span class="rules-chip rules-chip--orange">10th</span>
+            <span class="rules-chip-sep">&</span>
+            <span class="rules-chip rules-chip--orange">25th</span>
+            <span class="rules-chip-note">of each month</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment type cards -->
+    <div class="pt-cards reveal">
+      <h3 class="pt-cards-title">Three types of payment processes at StorageHQ</h3>
+      <div class="pt-cards-row">
+        <details class="pt-card pt-card--green">
+          <summary class="pt-card-header">
+            <span class="pt-card-title">Credit Card Payment</span>
+            <span class="pt-card-desc">Paying with your Ramp CC for business unit expenses.</span>
+          </summary>
+          <ul>
+            <li>Travel bookings</li>
+            <li>Office supplies & software subscriptions</li>
+            <li>General business unit purchases</li>
+            <li>Container Sales expenses</li>
+            <li>Multi-project costs</li>
+          </ul>
+        </details>
+        <details class="pt-card pt-card--purple">
+          <summary class="pt-card-header">
+            <span class="pt-card-title">Project-Related</span>
+            <span class="pt-card-desc">Expenses tied to a specific client project or facility.</span>
+          </summary>
+          <ul>
+            <li>Third-party client builds</li>
+            <li>Leasing & acquisition costs</li>
+            <li>Facility operations</li>
+            <li>Active projects tracked in Smartsheets</li>
+          </ul>
+        </details>
+        <details class="pt-card pt-card--orange">
+          <summary class="pt-card-header">
+            <span class="pt-card-title">Invoice & Vendor Payment</span>
+            <span class="pt-card-desc">Invoices, vendor payments, or unpaid bills sent to AP.</span>
+          </summary>
+          <ul>
+            <li>Vendor payments via Payables</li>
+            <li>US business expenses (not project-tied)</li>
+            <li>CAD business expenses (not project-tied)</li>
+            <li>Unpaid invoices submitted through Smartsheets</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+
+
+    <!-- ═════════════════════════════════════ -->
+    <!-- 1A. Credit Card Payments Detail       -->
+    <!-- ═════════════════════════════════════ -->
+    <section class="section" id="credit-card">
+      <div class="section-head reveal">
+        <div class="section-tag section-tag--green">Payment Selection</div>
+        <h2>Which Ramp card do I use?</h2>
+        <p class="section-sub">Walk through these business unit questions to find the right credit card.</p>
+      </div>
+
+      <div class="callout-sub reveal">
+        <strong>Business Unit Questions</strong> — Answer these in order to determine which business unit credit card applies to your expense.
+      </div>
+
+      <div class="chart-wrap reveal">
+        <div class="chart-toolbar">
+          <button onclick="zoom(this,1)" title="Zoom in">+</button>
+          <button onclick="zoom(this,-1)" title="Zoom out">-</button>
+          <button onclick="zoom(this,0)" title="Reset">R</button>
+        </div>
+        <div class="chart-scroll">
+          <pre class="mermaid">
+flowchart TD
+  S1(["Credit Card Payment"])
+
+  Q1(["Is it for travel?"])
+  A1["Book travel through Ramp<br/>Use <b><u>your Business Unit CC</u></b>"]
+
+  Q2(["Is it for the General<br/>business unit?"])
+  A2["Use the <b><u>General<br/>Business CC</u></b>"]
+
+  Q3(["Is it for the Container<br/>Sales business unit?"])
+  A3["Use the <b><u>Container<br/>Sales CC</u></b>"]
+
+  Q4(["Will you use this across<br/>multiple projects?"])
+  A4["Use <b><u>your<br/>Business Unit CC</u></b>"]
+  A4F["Continue to Project-Related<br/>or Invoice flow"]
+
+  S1 --> Q1
+  Q1 -->|Yes| A1
+  Q1 -->|No| Q2
+  Q2 -->|Yes| A2
+  Q2 -->|No| Q3
+  Q3 -->|Yes| A3
+  Q3 -->|No| Q4
+  Q4 -->|Yes| A4
+  Q4 -->|No| A4F
+
+  click A4F "#project"
+
+  style S1 fill:#0a8a6e,stroke:#0a8a6e,color:#fff
+  style Q1 fill:#d1fae5,stroke:#34d399,color:#111
+  style Q2 fill:#d1fae5,stroke:#34d399,color:#111
+  style Q3 fill:#d1fae5,stroke:#34d399,color:#111
+  style Q4 fill:#d1fae5,stroke:#34d399,color:#111
+  style A1 fill:#ecfdf5,stroke:#34d399,color:#111
+  style A2 fill:#ecfdf5,stroke:#34d399,color:#111
+  style A3 fill:#ecfdf5,stroke:#34d399,color:#111
+  style A4 fill:#ecfdf5,stroke:#34d399,color:#111
+  style A4F fill:#f5f5f5,stroke:#bbb,color:#555
+        </pre>
+        </div>
+        <div class="chart-hint">Scroll or drag to explore · Ctrl/Cmd + scroll to zoom</div>
+      </div>
+    </section>
+
+    <!-- ═════════════════════════════════════ -->
+    <!-- 1B. Project-Related Detail            -->
+    <!-- ═════════════════════════════════════ -->
+    <section class="section" id="project">
+      <div class="section-head reveal">
+        <div class="section-tag section-tag--purple">Project-Related</div>
+        <h2>Project expense? Find the right path</h2>
+        <p class="section-sub">For expenses tied to a specific client project or facility.</p>
+      </div>
+
+      <div class="chart-wrap reveal">
+        <div class="chart-toolbar">
+          <button onclick="zoom(this,1)" title="Zoom in">+</button>
+          <button onclick="zoom(this,-1)" title="Zoom out">-</button>
+          <button onclick="zoom(this,0)" title="Reset">R</button>
+        </div>
+        <div class="chart-scroll">
+          <pre class="mermaid">
+flowchart TD
+  S2(["Project-Related Expense"])
+
+  Q5(["Is this for a Third party<br/>client project?"])
+  A5["Use <b><u>Development or<br/>Construction unit CC</u></b>"]
+
+  Q6(["Is this for Leasing,<br/>Acquisition, or Facility Ops?"])
+  A6["Use the <b><u>Facility<br/>Name CC</u></b>"]
+
+  Q8(["Is it for an active Project<br/>tracked in Smartsheets?"])
+  A8["Upload unpaid invoice to<br/><b><u>Smartsheets Invoice Form</u></b><br/>(Select 'needs to be paid')"]
+  A8F["No project assigned?<br/>Continue to Invoice flow"]
+
+  S2 --> Q5
+  Q5 -->|Yes| A5
+  Q5 -->|No| Q6
+  Q6 -->|Yes| A6
+  Q6 -->|No| Q8
+  Q8 -->|Yes| A8
+  Q8 -->|No| A8F
+
+  click A8F "#invoice"
+
+  style S2 fill:#6d28d9,stroke:#6d28d9,color:#fff
+  style Q5 fill:#ede9fe,stroke:#a78bfa,color:#111
+  style Q6 fill:#ede9fe,stroke:#a78bfa,color:#111
+  style Q8 fill:#ede9fe,stroke:#a78bfa,color:#111
+  style A5 fill:#f3f0ff,stroke:#a78bfa,color:#111
+  style A6 fill:#f3f0ff,stroke:#a78bfa,color:#111
+  style A8 fill:#f3f0ff,stroke:#a78bfa,color:#111
+  style A8F fill:#f5f5f5,stroke:#bbb,color:#555
+        </pre>
+        </div>
+        <div class="chart-hint">Scroll or drag to explore · Ctrl/Cmd + scroll to zoom</div>
+      </div>
+    </section>
+
+    <!-- ═════════════════════════════════════ -->
+    <!-- 1C. Invoice & Vendor Payments Detail  -->
+    <!-- ═════════════════════════════════════ -->
+    <section class="section" id="invoice">
+      <div class="section-head reveal">
+        <div class="section-tag section-tag--orange">Invoice & Vendor Payments</div>
+        <h2>Invoices, vendor payments & unpaid bills</h2>
+        <p class="section-sub">For expenses processed through payables, Smartsheets, or emailed invoices.</p>
+      </div>
+
+      <div class="chart-wrap reveal">
+        <div class="chart-toolbar">
+          <button onclick="zoom(this,1)" title="Zoom in">+</button>
+          <button onclick="zoom(this,-1)" title="Zoom out">-</button>
+          <button onclick="zoom(this,0)" title="Reset">R</button>
+        </div>
+        <div class="chart-scroll">
+          <pre class="mermaid">
+flowchart TD
+  S3(["Invoice / Vendor Payment"])
+
+  Q7(["Need a Vendor payment<br/>made by Payables?"])
+  A7["Due by 10th &<br/>25th monthly"]
+
+  Q9(["Is it a US business expense<br/>not tied to a project?"])
+  A9["Email invoice to<br/><b><u>receipts@storagehq.ca</u></b><br/>Include a brief description:<br/>What, Where, Why & Business Unit"]
+
+  Q10(["Is it a CAD business expense<br/>not tied to a project?"])
+  A10["Email invoice to<br/><b><u>storagehqrentalsltd@ap.ramp.com</u></b><br/>CC <b><u>procurement@storagehq.ca</u></b><br/>Include a brief description:<br/>What, Where, Why & Business Unit"]
+
+  S3 --> Q7
+  Q7 --> A7
+  Q7 -->|Yes| Q9
+  Q9 -->|Yes| A9
+  Q9 -->|No| Q10
+  Q10 -->|Yes| A10
+
+  style S3 fill:#c2410c,stroke:#c2410c,color:#fff
+  style Q7 fill:#ffedd5,stroke:#fb923c,color:#111
+  style Q9 fill:#ffedd5,stroke:#fb923c,color:#111
+  style Q10 fill:#ffedd5,stroke:#fb923c,color:#111
+  style A7 fill:#fff7ed,stroke:#fb923c,color:#111
+  style A9 fill:#fff7ed,stroke:#fb923c,color:#111
+  style A10 fill:#fff7ed,stroke:#fb923c,color:#111
+        </pre>
+        </div>
+        <div class="chart-hint">Scroll or drag to explore · Ctrl/Cmd + scroll to zoom</div>
+      </div>
+    </section>
+
+    <!-- ═════════════════════════════════════ -->
+    <!-- 2. Receipt Submission Flow            -->
+    <!-- ═════════════════════════════════════ -->
+    <section class="section" id="receipts">
+      <div class="section-head reveal">
+        <div class="section-tag section-tag--purple">Receipt Flow</div>
+        <h2>How do I submit a receipt?</h2>
+        <p class="section-sub">Walk through these questions in order. Mobile users can upload directly with the Ramp
+          App.</p>
+      </div>
+
+      <div class="timeline reveal">
+
+        <div class="tl-item">
+          <div class="tl-dot">1</div>
+          <div class="tl-card">
+            <h4>Is this for a third-party client's project?</h4>
+            <div class="tl-branch tl-yes"><strong>Yes</strong> -- Upload to the Invoice Submission Form. Book as
+              Development or Construction business unit.</div>
+            <div class="tl-branch tl-no"><strong>No</strong> -- Continue below</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot">2</div>
+          <div class="tl-card">
+            <h4>Is this for a SHQ Leasing or Acquisition project?</h4>
+            <div class="tl-branch tl-yes"><strong>Yes</strong> -- Book as the "Facility Name" business unit in
+              Smartsheets.</div>
+            <div class="tl-branch tl-no"><strong>No</strong> -- Continue below</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot">3</div>
+          <div class="tl-card">
+            <h4>Is this for a Container install project?</h4>
+            <div class="tl-branch tl-yes"><strong>Yes</strong> -- Book as Construction expense under the container
+              project name in Smartsheets.</div>
+            <div class="tl-branch tl-no"><strong>No</strong> -- See fallback options below</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot">v</div>
+          <div class="tl-card">
+            <h4>None of the above? Email or upload via Ramp App</h4>
+            <div class="dest-grid">
+              <div class="dest">
+                <div class="dest-name">General</div>
+                <div class="dest-email">receipts@ramp.com</div>
+              </div>
+              <div class="dest">
+                <div class="dest-name">Travel</div>
+                <div class="dest-email">receipts@ramp.com</div>
+              </div>
+              <div class="dest">
+                <div class="dest-name">Facility Ops</div>
+                <div class="dest-email">receipts@ramp.com</div>
+              </div>
+              <div class="dest">
+                <div class="dest-name">Sales</div>
+                <div class="dest-email">receipts@ramp.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═════════════════════════════════════ -->
+    <!-- 3. When to Use Procurement            -->
+    <!-- ═════════════════════════════════════ -->
+    <section class="section" id="procurement">
+      <div class="section-head reveal">
+        <div class="section-tag section-tag--orange">Procurement</div>
+        <h2>When to use procurement</h2>
+        <p class="section-sub">Procurement manages RFPs and POs through Smartsheets. Here's when to use each.</p>
+      </div>
+
+      <div class="proc-row reveal">
+        <div class="proc proc--rfp">
+          <div class="proc-title">Request For Proposal</div>
+          <div class="proc-via">Smartsheets RFP Form</div>
+          <ul>
+            <li>Items over <strong style="color: var(--orange)">$10,000</strong></li>
+            <li>Going to market for the best price, vendor, or service</li>
+            <li>Ordering bulk product for multiple jobs</li>
+          </ul>
+        </div>
+        <div class="proc proc--po">
+          <div class="proc-title">Purchase Order</div>
+          <div class="proc-via">Smartsheets PO Form</div>
+          <ul>
+            <li>Frequently used items already sourced and approved</li>
+            <li>Ship to warehouse for bundled crate shipment later</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="skip-box reveal">
+        <h4>When NOT to use procurement</h4>
+        <ul>
+          <li>Single item shipped direct to a location other than the warehouse</li>
+          <li>Urgent purchase with manager's approval to bypass procurement</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═════════════════════════════════════ -->
+    <!-- 4. How to Use Procurement             -->
+    <!-- ═════════════════════════════════════ -->
+    <section class="section" id="how-to">
+      <div class="section-head reveal">
+        <div class="section-tag section-tag--blue">Step-by-Step</div>
+        <h2>How to use procurement</h2>
+        <p class="section-sub">Detailed steps for the RFP and PO processes.</p>
+      </div>
+
+      <div class="steps-block reveal">
+        <h4 style="color: var(--purple)">Request for Proposal Process (RFP)</h4>
+        <div class="lead-time">Allow 2+ weeks lead time</div>
+        <ol class="steps steps--purple">
+          <li>Fill out the Smartsheets RFP form with your scope and details</li>
+          <li>Procurement follows up with questions to confirm requirements</li>
+          <li>Procurement takes the RFP to market for bids</li>
+          <li>Procurement sorts bids and presents the best options to you</li>
+          <li>Contact your chosen vendor to discuss details and award the bid</li>
+          <li>Work with Procurement to draft the contract, deliverables, and payment terms</li>
+          <li>Procurement arranges with Finance to set up a USD vendor in QBO</li>
+          <li>Procurement handles contract signatures and vendor onboarding</li>
+        </ol>
+        <div class="ownership">
+          <strong>After onboarding:</strong> Once onboarded you will be the main vendor contact point for all invoices, questions etc. Procurement will no longer be in contact with the vendor. You own this Vendor now.
+        </div>
+      </div>
+
+      <div class="steps-block reveal">
+        <h4 style="color: var(--accent)">PO Process</h4>
+        <div class="lead-time">Allow 4+ weeks for large orders</div>
+        <ol class="steps">
+          <li>Fill out the Smartsheets PO form (Instruct procurement what Business Unit this is for)</li>
+          <li>Procurement will follow up to confirm the order details and timelines</li>
+          <li>Procurement will have all items shipped/stored at our warehouse and ready to ship</li>
+          <li>You will provide the location where the shipment will be delivered</li>
+          <li>Procurement will have your order crated and delivered anywhere in the US within 5 business days</li>
+          <li>You are responsible for all shipment details & logistics once it leaves the warehouse</li>
+        </ol>
+      </div>
+    </section>
+
+    <footer class="footer">
+      StorageHQ · Payment & Receipt Flow · Internal Reference
+    </footer>
+
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: dark ? '#1f2e2a' : '#ecfdf5',
+        primaryTextColor: dark ? '#eee' : '#111',
+        primaryBorderColor: dark ? '#34d399' : '#0a8a6e',
+        lineColor: dark ? '#555' : '#bbb',
+        secondaryColor: dark ? '#1e1e2e' : '#f8f8f8',
+        tertiaryColor: dark ? '#2a1a3a' : '#f3f0ff',
+        fontFamily: 'DM Sans, sans-serif',
+        fontSize: '14px',
+      },
+      flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 40, rankSpacing: 50, padding: 20 },
+    });
+  </script>
+
+  <script>
+    // Chart Zoom & Pan (supports multiple chart-wrap elements)
+    const zoomLevels = new WeakMap();
+    let dragState = null; // { wrap, scroll, startX, startY, scrollLeft, scrollTop }
+
+    function zoom(element, dir) {
+      const wrap = element.closest ? element.closest('.chart-wrap') : element;
+      const el = wrap.querySelector('.mermaid');
+      let z = zoomLevels.get(el) || 1;
+      z = dir === 0 ? 1 : Math.max(0.3, Math.min(4, z + dir * 0.25));
+      zoomLevels.set(el, z);
+      el.style.transform = 'scale(' + z + ')';
+
+      if (z > 1) {
+        wrap.classList.add('is-zoomed');
+      } else {
+        wrap.classList.remove('is-zoomed');
+      }
+    }
+
+    // Define zoom from global scope for button clicks
+    window.zoom = zoom;
+
+    // Attach wheel zoom and drag-to-pan to every chart-wrap
+    document.querySelectorAll('.chart-wrap').forEach(wrap => {
+      const scroll = wrap.querySelector('.chart-scroll');
+
+      // Scroll wheel zoom
+      wrap.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          const dir = e.deltaY > 0 ? -1 : 1;
+          zoom(wrap, dir * 0.5);
+        }
+      }, { passive: false });
+
+      // Drag to pan
+      wrap.addEventListener('mousedown', (e) => {
+        if (!wrap.classList.contains('is-zoomed')) return;
+        dragState = {
+          wrap,
+          scroll,
+          startX: e.pageX - scroll.offsetLeft,
+          startY: e.pageY - scroll.offsetTop,
+          scrollLeft: scroll.scrollLeft,
+          scrollTop: scroll.scrollTop
+        };
+      });
+    });
+
+    window.addEventListener('mouseup', () => dragState = null);
+
+    window.addEventListener('mousemove', (e) => {
+      if (!dragState) return;
+      e.preventDefault();
+      const { scroll, startX, startY, scrollLeft, scrollTop } = dragState;
+      const x = e.pageX - scroll.offsetLeft;
+      const y = e.pageY - scroll.offsetTop;
+      const walkX = (x - startX) * 1.5;
+      const walkY = (y - startY) * 1.5;
+      scroll.scrollLeft = scrollLeft - walkX;
+      scroll.scrollTop = scrollTop - walkY;
+    });
+
+    // Scroll spy with auto-tracking horizontally
+    const navContainer = document.querySelector('.nav-inner');
+    const navLinks = document.querySelectorAll('.nav a');
+    const ids = [...navLinks].map(a => a.getAttribute('href').slice(1));
+    const sectionEls = ids.map(id => document.getElementById(id)).filter(Boolean);
+
+    const spy = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => {
+            const isActive = a.getAttribute('href') === '#' + entry.target.id;
+            a.classList.toggle('active', isActive);
+            if (isActive) {
+              // Scroll nav items into view horizontally
+              const navLeft = navContainer.getBoundingClientRect().left;
+              const linkLeft = a.getBoundingClientRect().left;
+              navContainer.scrollBy({
+                left: linkLeft - navLeft - 20,
+                behavior: 'smooth'
+              });
+            }
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -50% 0px' });
+    sectionEls.forEach(s => spy.observe(s));
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => revealObs.observe(el));
+
+    // Hero pills: click to jump to section
+    document.querySelectorAll('.pill[data-section]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const target = document.querySelector(pill.dataset.section);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Sync payment cards: expanding/collapsing one syncs all others
+    let syncing = false;
+    ptCards.forEach(card => {
+      card.addEventListener('toggle', () => {
+        if (syncing) return;
+        syncing = true;
+        ptCards.forEach(other => other.open = card.open);
+        syncing = false;
+      });
+    });
+  </script>
+
+</body>
+
+</html>
