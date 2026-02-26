@@ -582,6 +582,18 @@
       cursor: pointer !important;
     }
 
+    .tl-link {
+      color: var(--blue);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+
+    .tl-link:hover {
+      opacity: 0.75;
+    }
+
     .chart-hint {
       padding: 8px 16px;
       border-top: 1px solid var(--border);
@@ -1249,7 +1261,7 @@ flowchart TD
           <div class="tl-dot">1</div>
           <div class="tl-card">
             <h4>Is this for a third-party client's project?</h4>
-            <div class="tl-branch tl-yes"><strong>Yes</strong> -- Upload to the Invoice Submission Form. Book as
+            <div class="tl-branch tl-yes"><strong>Yes</strong> -- Upload to the <a class="tl-link" href="https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2" target="_blank">Invoice Submission Form</a>. Book as
               Development or Construction business unit.</div>
             <div class="tl-branch tl-no"><strong>No</strong> -- Continue below</div>
           </div>
