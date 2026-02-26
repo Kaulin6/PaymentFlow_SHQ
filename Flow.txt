@@ -20,7 +20,7 @@ Is this for a Leasing site, Acquisition or Facility Operations? Use the Facility
 
 Need a Vendor payment made by Payables? Due by 10th & 25th monthly 
 
-Is it for an active Project being tracked in Smartsheets? Upload the unpaid invoice to smartsheets Invoice submission form (Select “needs to be paid”)
+Is it for an active Project being tracked in Smartsheets? Upload the unpaid invoice to smartsheets Invoice submission form (https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2) (Select “needs to be paid”)
 
 Is it an expense for US business activity that is not tied to an active “project”? Email the invoice to receipts@storagehq.ca and include a short description of what/where and the Business unit.
 
@@ -40,7 +40,7 @@ Receipt Submission & Business Unit Classification Rules
 
 *If you are using a mobile device, upload receipts with the App*
 
-Question 1: Is this for a Third party clients project? Upload to Invoice submission form and book it as  Development or Construction business unit.
+Question 1: Is this for a Third party clients project? Upload to Invoice submission form (https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2) and book it as  Development or Construction business unit.
 If No…see Q2
 Question 2: Is this expense for a SHQ Leasing project or Acquisition Project? Book it as the “facility name” business unit in smartsheets. 
 If No…see Q3 

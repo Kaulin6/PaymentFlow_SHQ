@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHQ Expense & Receipt Flowchart</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            transform-origin: top center;
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .chart-wrap {
+            width: 100%;
+            max-width: 1000px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-toolbar {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            z-index: 5;
+        }
+
+        .chart-toolbar button {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            color: #6b7280;
+            font-size: 15px;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .chart-toolbar button:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .chart-scroll {
+            overflow: auto;
+            padding: 40px 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chart-wrap.is-zoomed {
+            cursor: grab;
+        }
+
+        .chart-wrap.is-zoomed:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Expense & Receipt Decision Flow</h1>
+        <p>Follow the path to determine the correct purchasing method and receipt submission process.</p>
+    </div>
+
+    <!-- Mermaid Graph Definition -->
+    <div class="chart-wrap">
+        <div class="chart-toolbar">
+            <button onclick="zoom(this,1)" title="Zoom in">+</button>
+            <button onclick="zoom(this,-1)" title="Zoom out">-</button>
+            <button onclick="zoom(this,0)" title="Reset">R</button>
+        </div>
+        <div class="chart-scroll">
+            <div class="mermaid">
+                flowchart TD
+                %% Main Categories
+                START(["What process do you need?"])
+
+                START --> CardSelection["Card Selection"]
+                START --> ReceiptSub["Receipt Submission"]
+                START --> Procurement["Procurement (RFP / PO)"]
+
+                %% ==========================================
+                %% Branch 1: Card Selection
+                %% ==========================================
+                subgraph BU ["Business Unit Expense (Use Ramp CC)"]
+                direction TB
+                B_Travel["Travel"] --> A_Travel["Book via Ramp OR<br />Use Business Unit CC"]
+                B_Gen["General Business Unit"] --> A_Gen["Use General Business CC"]
+                B_Cont["Container Sales BU"] --> A_Cont["Use Container Sales CC"]
+                B_Multi["Used across multiple projects"] --> A_Multi["Use your Business Unit CC"]
+                end
+
+                subgraph Proj ["Project-Related Expense"]
+                direction TB
+                P_Client["Third party client project"] --> A_Client["Use Development or Construction CC"]
+                P_Lease["Leasing, Acquisition, or Facility Ops"] --> A_Lease["Use Facility Name CC"]
+                P_Install["Container Install"] --> A_Install["Smartsheets: Construction expense<br />under Container
+                Project"]
+                P_Active["Active Smartsheets Project"] --> A_Active["Upload invoice to Smartsheets<br />Invoice
+                submission form"]
+                click A_Active "https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2" _blank
+                end
+
+                subgraph Inv ["Invoice & Vendor Payments"]
+                direction TB
+                I_Vendor["Vendor via Payables"] --> A_Vendor["Submit by 10th or 25th monthly"]
+                I_US["US business activity<br />(not a project)"] --> A_US["Email receipts@storagehq.ca"]
+                I_CAD["CAD business activity<br />(not a project)"] --> A_CAD["Email AP Ramp<br />CC
+                procurement@storagehq.ca"]
+                end
+
+                CardSelection --> BU
+                CardSelection --> Proj
+                CardSelection --> Inv
+
+                %% ==========================================
+                %% Branch 2: Receipt Submission
+                %% ==========================================
+                subgraph ReceiptFlow ["Receipt Submission Rules"]
+                direction TB
+                R_START(["Upload Mobile Receipts via Ramp App"])
+                R_Q1{"Q1: Third party clients project?"}
+                R_Q2{"Q2: SHQ Leasing/Acquisition?"}
+                R_Q3{"Q3: Container install?"}
+
+                R_START --> R_Q1
+                R_Q1 -->|"Yes"| R_A1["Upload to Invoice submission form<br />Book as Dev/Construction B/U"]
+                click R_A1 "https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2" _blank
+                R_Q1 -->|"No"| R_Q2
+                R_Q2 -->|"Yes"| R_A2["Book as 'facility name' B/U<br />in Smartsheets"]
+                R_Q2 -->|"No"| R_Q3
+                R_Q3 -->|"Yes"| R_A3["Book as construction expense<br />under container project name"]
+                R_Q3 -->|"No"| R_A4["General, Travel, Facility Ops, Sales:<br />Email receipts@ramp.com<br />OR upload
+                via Ramp App"]
+                end
+
+                ReceiptSub --> ReceiptFlow
+
+                %% ==========================================
+                %% Branch 3: Procurement Flow
+                %% ==========================================
+                subgraph ProcFlow ["When & How to Use Procurement"]
+                direction TB
+                Proc_When["When to use:"] --> Proc_RFP["RFP: >$10k, market bid, bulk"]
+                Proc_When["When to use:"] --> Proc_PO["PO: Fast re-order, warehouse shipment"]
+                Proc_When["When to use:"] --> Proc_NO["When NOT to: Single item non-warehouse, User urgent"]
+
+                subgraph RFP_Branch ["RFP Process (> 2 weeks advance)"]
+                direction TB
+                R1["1. Fill Smartsheets RFP form"]
+                R2["2. Procurement confirms details"]
+                R3["3. Procurement bids to market"]
+                R4["4. Procurement presents best options"]
+                R5["5. You award the bid"]
+                R6["6. Draft contract/terms with Procurement"]
+                R7["7. Setup USD Vendor in QBO"]
+                R8["8. Contract signatures & onboarding"]
+                R9["9. You own vendor contact afterwards"]
+                R1 --> R2 --> R3 --> R4 --> R5 --> R6 --> R7 --> R8 --> R9
+                end
+
+                subgraph PO_Branch ["PO Process (> 4 weeks advance)"]
+                direction TB
+                P1["1. Fill Smartsheets PO form (Instruct B/U)"]
+                P2["2. Procurement confirms details/timelines"]
+                P3["3. Shipped/stored at warehouse"]
+                P4["4. You provide delivery location"]
+                P5["5. Crated & delivered in US within 5 days"]
+                P6["6. You are responsible for shipment details once it leaves warehouse"]
+                P1 --> P2 --> P3 --> P4 --> P5 --> P6
+                end
+
+                Proc_RFP --> RFP_Branch
+                Proc_PO --> PO_Branch
+                end
+
+                Procurement --> ProcFlow
+
+                %% Styling
+                style START fill:#0e0e0e,stroke:#fff,color:#fff
+                style CardSelection fill:#1f2937,stroke:#fff,color:#fff
+                style ReceiptSub fill:#1f2937,stroke:#fff,color:#fff
+                style Procurement fill:#1f2937,stroke:#fff,color:#fff
+
+                style BU fill:#ecfdf5,stroke:#34d399,stroke-width:2px,color:#064e3b,rx:8px,ry:8px
+                style Proj fill:#f3f0ff,stroke:#a78bfa,stroke-width:2px,color:#4c1d95,rx:8px,ry:8px
+                style Inv fill:#fff7ed,stroke:#fb923c,stroke-width:2px,color:#7c2d12,rx:8px,ry:8px
+                style ReceiptFlow fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e40af,rx:8px,ry:8px
+                style ProcFlow fill:#fdf4ff,stroke:#e879f9,stroke-width:2px,color:#701a75,rx:8px,ry:8px
+                style RFP_Branch fill:#ffffff,stroke:#e879f9,stroke-dasharray: 5 5,rx:8px,ry:8px
+                style PO_Branch fill:#ffffff,stroke:#e879f9,stroke-dasharray: 5 5,rx:8px,ry:8px
+
+                classDef buNode fill:#fff,stroke:#10b981
+                classDef projNode fill:#fff,stroke:#8b5cf6
+                classDef invNode fill:#fff,stroke:#f97316
+                classDef recNode fill:#fff,stroke:#3b82f6
+                classDef procNode fill:#fff,stroke:#e879f9
+
+                class B_Travel,B_Gen,B_Cont,B_Multi,A_Travel,A_Gen,A_Cont,A_Multi buNode
+                class P_Client,P_Lease,P_Install,P_Active,A_Client,A_Lease,A_Install,A_Active projNode
+                class I_Vendor,I_US,I_CAD,A_Vendor,A_US,A_CAD invNode
+                class R_START,R_Q1,R_Q2,R_Q3,R_A1,R_A2,R_A3,R_A4 recNode
+                class Proc_RFP,Proc_PO,Proc_NO,Proc_When,R1,R2,R3,R4,R5,R6,R7,R8,R9,P1,P2,P3,P4,P5,P6 procNode
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                lineColor: '#9ca3af',
+                fontFamily: '-apple-system, "Segoe UI", Roboto, sans-serif'
+            },
+            flowchart: {
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            }
+        });
+
+        // Add an error listener just in case to help debug if it fails again
+        window.addEventListener('error', function (e) {
+            console.error('Script Error:', e.message);
+        });
+
+        // Chart Zoom & Pan
+        const chartWrap = document.querySelector('.chart-wrap');
+        const chartScroll = document.querySelector('.chart-scroll');
+        const mermaidEl = document.querySelector('.mermaid');
+        const zoomLevels = new WeakMap();
+
+        let isDragging = false;
+        let startX, startY;
+        let scrollLeft, scrollTop;
+
+        function zoom(element, dir) {
+            const wrap = element.closest ? element.closest('.chart-wrap') : element;
+            const el = wrap.querySelector('.mermaid');
+            let z = zoomLevels.get(el) || 1;
+            z = dir === 0 ? 1 : Math.max(0.3, Math.min(4, z + dir * 0.25));
+            zoomLevels.set(el, z);
+            el.style.transform = 'scale(' + z + ')';
+
+            if (z > 1) {
+                wrap.classList.add('is-zoomed');
+            } else {
+                wrap.classList.remove('is-zoomed');
+            }
+        }
+
+        window.zoom = zoom;
+
+        // Scroll wheel zoom
+        chartWrap.addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const dir = e.deltaY > 0 ? -1 : 1;
+                zoom(chartWrap, dir * 0.5);
+            }
+        }, { passive: false });
+
+        // Drag to pan
+        chartWrap.addEventListener('mousedown', (e) => {
+            if (!chartWrap.classList.contains('is-zoomed')) return;
+            isDragging = true;
+            startX = e.pageX - chartScroll.offsetLeft;
+            startY = e.pageY - chartScroll.offsetTop;
+            scrollLeft = chartScroll.scrollLeft;
+            scrollTop = chartScroll.scrollTop;
+        });
+
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - chartScroll.offsetLeft;
+            const y = e.pageY - chartScroll.offsetTop;
+            const walkX = (x - startX) * 1.5;
+            const walkY = (y - startY) * 1.5;
+            chartScroll.scrollLeft = scrollLeft - walkX;
+            chartScroll.scrollTop = scrollTop - walkY;
+        });
+    </script>
+</body>
+
+</html>

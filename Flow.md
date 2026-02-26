@@ -1,0 +1,79 @@
+# Payment Options and Card Selection
+
+*All employees should pay for their own expenses using Ramp credit cards if possible*
+*Managers will seek approval for purchases >$5000*
+*Support staff will seek approval for purchases >$500*
+
+## How to decide what CC to use?
+
+- **Is it for travel?** Book travel through Ramp and use your business unit CC
+- **Is it for the General business unit?** Use the General business CC
+- **Is it for the Container Sales business unit?** Use the Container Sales CC
+- **Is this an item you will use across multiple projects?** Use your business unit CC
+- **Is this for a Third party client project?** Use Development or Construction unit CC
+- **Is this for a Leasing site, Acquisition or Facility Operations?** Use the Facility name CC
+- **Need a Vendor payment made by Payables?** Due by 10th & 25th monthly
+- **Is it for an active Project being tracked in Smartsheets?** Upload the unpaid invoice to smartsheets [Invoice submission form](https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2) (Select "needs to be paid")
+- **Is it an expense for US business activity that is not tied to an active "project"?** Email the invoice to receipts@storagehq.ca and include a short description of what/where and the Business unit.
+- **Is it an expense for CAD business activity that is not tied to an active "project"?** Email the invoice to storagehqrentalsltd@ap.ramp.com and CC procurement@storagehq.ca with a short description of what/where/why and the B/U.
+
+---
+
+# Receipt Submission & Business Unit Classification Rules
+
+*If you are using a mobile device, upload receipts with the App*
+
+**Question 1:** Is this for a Third party client's project? Upload to [Invoice submission form](https://app.smartsheet.com/b/form/0199aa9d59f17b94a78162e8cdb2ebe2) and book it as Development or Construction business unit.
+If No…see Q2
+
+**Question 2:** Is this expense for a SHQ Leasing project or Acquisition Project? Book it as the "facility name" business unit in smartsheets.
+If No…see Q3
+
+**Question 3:** Is this expense for a Container install project? Book it as construction expense under the container project name in smartsheets.
+If No… Ask yourself the following questions:
+
+- **Is it for the General business unit?** Email to receipts@ramp.com or upload with Ramp App
+- **Is it for travel?** Email to receipts@ramp.com or upload with Ramp App
+- **Is it for facility operations?** Email to receipts@ramp.com or upload with Ramp App
+- **Is it for the Sales business unit?** Email to receipts@ramp.com or upload with Ramp App
+
+---
+
+# When to Use Procurement
+
+## Request For Proposal (RFP form in Smartsheets)
+- Items > $10,000
+- When you need to go to market to find the best price/vendor/supplier/service
+- When we are ordering bulk product for multiple jobs
+
+## Purchase Order (PO form in Smartsheets)
+- When it is an item we frequently use and have already sourced and approved
+- When you want it shipped to our warehouse to be bundled with other items for a crate shipment at a later date
+
+## When NOT to use Procurement
+- When you need a single item purchased and shipped direct to a location other than the warehouse
+- When you need something urgently and have your manager's approval to circumvent the Procurement process
+
+---
+
+# How to Use Procurement
+
+## RFP (>Two weeks advance)
+1. Fill out the smartsheets RFP form with your desired scope and details
+2. Procurement will follow up with more questions to confirm
+3. Procurement will take the RFP to market for bids
+4. Procurement will sort through the bids and present the best options to you
+5. You will then contact your chosen Vendor to discuss details and award the bid
+6. You will work with Procurement to draft the contract, deliverables, payment terms etc
+7. Procurement will arrange with Finance to setup a USD Vendor in QBO
+8. Procurement will arrange for the required contract signatures and onboard the vendor
+9. Once onboarded you will be the main vendor contact point for all invoices, questions etc
+10. Procurement will no longer be in contact with the vendor. You own this Vendor now.
+
+## PO (>Four weeks advance for large orders)
+1. Fill out the smart sheets PO form (Instruct procurement what B/U this is for)
+2. Procurement will follow up to confirm the order details and timelines
+3. Procurement will have all items shipped/stored at our warehouse and ready to ship
+4. You will provide the location where the shipment will be delivered
+5. Procurement will have your order crated and delivered anywhere in the US within 5 business days
+6. You are responsible for all shipment details & logistics once it leaves the warehouse
